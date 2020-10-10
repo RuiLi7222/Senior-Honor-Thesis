@@ -11,12 +11,14 @@ output:
 subtitle: $\textbf{STOR 691H, FALL 2020}$
 ---
 # Require packages
-```{r}
+```{r message = False}
 library(utils)
 library(dplyr)
 library(ggplot2)
 library(maps)
+library(stringr)
 ```
+
 # Import the newest COVID-19 Dataset 
 ```{r}
 #these libraries need to be installed
@@ -32,10 +34,25 @@ data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv",
 covid.data = data %>%
               rename(Date="dateRep") %>%
               rename(Region="countriesAndTerritories") %>%
-              mutate(Date=as.Date(Date,format="%d/%m/%y"))
+              mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+              mutate(Region = str_replace_all(Region, "_", " "))
 
 summary(covid.data)
 head(covid.data)
+```
+
+```{r}
+regions = unique(covid.data$Region)
+region_w = unique(worldData$region)
+
+missing_region = c()
+for (i in 1:length(regions)) {
+  if(!regions[i]%in%region_w){
+    missing_region = c(regions[i],missing_region)
+  }
+}
+missing_region = as.data.frame(missing_region); names(missing_region) = c("Missing Region")
+world_region = as.data.frame(region_w); names(world_region) = c("World Region")
 ```
 
 # Data Distribution of population
@@ -72,6 +89,27 @@ ggplot() +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme_bw()
 ```
+#mutate, str_replace_all() replace the undersocre. 
+#Color Scale population in millions
+#population density
+#population/ square mile 2019
+
+#https://bhaskarvk.github.io/user2017.geodataviz/notebooks/03-Interactive-Maps.nb.html\
+
+#https://coronavirus.jhu.edu/map.html
+#https://coronavirus.jhu.edu/data/mortality
+#cases-death
+#death/pop *100 - GDP economic - num.hospitals
+
+#recreate and check; futher explore
+#Combine three plots together
+#Cases/pop incidence rate
+#https://plotly.com/r/
+
+#changing new cases for the time series analysis, setting model and do some predictions. 
+#add limitations and compare different vaccine types, access the value of the vaccine. 
+
+#ARIMA Models
 
 # Data Distribution of cases
 ```{r}
@@ -105,7 +143,7 @@ ggplot() +
 
 # Data Distribution of death
 ```{r}
-#cases dataframe
+#death dataframe
 death.data = data.frame(covid.data$Region,covid.data$deaths) 
 names(death.data) = c("Region","deaths") 
 death.data=aggregate(death.data$deaths, by=list(Category=death.data$Region), FUN=sum)
