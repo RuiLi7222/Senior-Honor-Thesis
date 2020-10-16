@@ -27,6 +27,7 @@ covid.data = data %>%
               rename(Date="dateRep") %>%
               rename(Region="countriesAndTerritories") %>%
               mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+              mutate(Region = str_replace_all(Region, "_", " "))
 
 #population dataframe
 pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))

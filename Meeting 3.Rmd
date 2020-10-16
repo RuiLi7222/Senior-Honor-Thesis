@@ -1,0 +1,116 @@
+---
+title: "Meeting 3"
+author: "Rui Li"
+date: "10/16/2020"
+output: html_document
+---
+#Relationship between cases/area vs case/pop
+#left join fix country name
+#predict model; make time model
+#several days in the past to predict a few days ahead.
+#https://otexts.com/fpp2/data-methods.html
+#Changing cases
+
+# Require packages
+```{r message = False}
+library(utils)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(stringr)
+library(readr)
+library(tidyverse)
+```
+
+# Import the newest COVID-19 Dataset 
+```{r}
+#these libraries need to be installed
+#library(utils)
+
+#read the Dataset sheet into “R”. The dataset will be called "data".
+data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+
+#library("dplyr") require "dplyr" package for the use of %>%
+covid.data = data %>%
+              rename(Date="dateRep") %>%
+              rename(Region="countriesAndTerritories") %>%
+              mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+              mutate(Region = str_replace_all(Region, "_", " "))
+#population dataframe
+pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))
+names(pop.data)=c("Region","Population2019","Continents","Codes")
+pop.data = na.omit(pop.data)
+pop.data = unique(pop.data)
+
+#Case/death Ratio
+#cases dataframe
+case.data = data.frame(covid.data$Region,covid.data$cases,covid.data$countryterritoryCode) 
+names(case.data) = c("Region","cases","Codes") 
+case.data=aggregate(case.data$cases, by=list(Category=case.data$Region), FUN=sum)
+case.data = as.data.frame(cbind(case.data,unique(covid.data$countryterritoryCode)))
+names(case.data) = c("Region","cases","Codes")
+case.data = na.omit(case.data)
+
+#death dataframe
+death.data = data.frame(covid.data$Region,covid.data$deaths,covid.data$countryterritoryCode) 
+names(death.data) = c("Region","deaths","Codes") 
+death.data=aggregate(death.data$deaths, by=list(Category=death.data$Region), FUN=sum)
+death.data = as.data.frame(cbind(death.data,unique(covid.data$countryterritoryCode)))
+names(death.data) = c("Region","deaths","Codes")
+death.data = na.omit(death.data)
+
+#Death/Case dataframe
+death_case.data = data.frame(case.data$Region,death.data$deaths/case.data$cases,case.data$Codes)
+names(death_case.data) = c("Region","Deaths/Case Ratio","Codes")
+
+#death/pop *100
+death_pop.data = data.frame(pop.data$Region,death.data$deaths/pop.data$Population2019*100,pop.data$Codes)
+names(death_pop.data) = c("Region","Values","Codes")
+
+#square mile
+square <- read_csv("Squares Miles 2013.csv")
+square = square[,-3]
+combine = full_join(pop.data,square, by=c("Region"="Country"))
+
+missing_id = c(30,47,52,85,201)
+missing_value = c(2226, 124503, 30450, 13948, 3800000)
+combine$`Amount/square miles`[missing_id] = missing_value
+pop.square = na.omit(combine)
+```
+
+```{r}
+#Population Ditribution
+pop.fig <- plot_ly(pop.data, type='choropleth', locations=pop.data$Codes, z=log(pop.data$Population2019), text=pop.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Population in 2019')
+
+#Population Density Ditribution
+pop.square.fig <- plot_ly(pop.square, type='choropleth', locations=pop.square$Codes, z=log(pop.square$Population2019/pop.square$`Amount/square miles`), text=pop.square$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Population Density in 2019')
+
+#Case Ditribution
+case.fig <- plot_ly(case.data, type='choropleth', locations=case.data$Codes, z=log(case.data$cases), text=case.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Covid-19 Cases Number')
+
+#Death Ditribution
+death.fig <- plot_ly(death.data, type='choropleth', locations=death.data$Codes, z=log(death.data$deaths+1), text=case.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Covid-19 Deaths Number')
+
+#Case/Death Ditribution
+death_case.fig <- plot_ly(death_case.data, type='choropleth', locations=death_case.data$Codes, z=death_case.data$`Deaths/Case Ratio`, text=death_case.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Ratio of World Covid-19 Deaths to Cases Number')
+
+#Death/pop*100 Ditribution
+death_pop.fig <- plot_ly(death_pop.data, type='choropleth', locations=death_pop.data$Codes, z=death_pop.data$`Values`, text=death_pop.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Ratio of World Covid-19 Death/Population*100')
+```
+
+```{r}
+#Plotting
+pop.fig
+pop.square.fig
+case.fig
+death.fig
+death_case.fig
+death_pop.fig
+```
+
