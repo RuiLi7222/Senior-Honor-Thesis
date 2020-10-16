@@ -1,0 +1,61 @@
+---
+title: "DataSets"
+author: "Rui Li"
+date: "10/16/2020"
+output: html_document
+---
+
+# Require packages
+```{r message = False}
+library(utils)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(stringr)
+```
+
+# Import the newest COVID-19 Dataset 
+```{r}
+#these libraries need to be installed
+#library(utils)
+
+#read the Dataset sheet into “R”. The dataset will be called "data".
+data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+
+#library("dplyr") require "dplyr" package for the use of %>%
+covid.data = data %>%
+              rename(Date="dateRep") %>%
+              rename(Region="countriesAndTerritories") %>%
+              mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+
+#population dataframe
+pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))
+names(pop.data)=c("Region","Population2019","Continents","Codes")
+pop.data = na.omit(pop.data)
+pop.data = unique(pop.data)
+
+#Case/death Ratio
+#cases dataframe
+case.data = data.frame(covid.data$Region,covid.data$cases,covid.data$countryterritoryCode) 
+names(case.data) = c("Region","cases","Codes") 
+case.data=aggregate(case.data$cases, by=list(Category=case.data$Region), FUN=sum)
+case.data = as.data.frame(cbind(case.data,unique(covid.data$countryterritoryCode)))
+names(case.data) = c("Region","cases","Codes")
+case.data = na.omit(case.data)
+
+#death dataframe
+death.data = data.frame(covid.data$Region,covid.data$deaths,covid.data$countryterritoryCode) 
+names(death.data) = c("Region","deaths","Codes") 
+death.data=aggregate(death.data$deaths, by=list(Category=death.data$Region), FUN=sum)
+death.data = as.data.frame(cbind(death.data,unique(covid.data$countryterritoryCode)))
+names(death.data) = c("Region","deaths","Codes")
+death.data = na.omit(death.data)
+
+#Death/Case dataframe
+death_case.data = data.frame(case.data$Region,death.data$deaths/case.data$cases,case.data$Codes)
+names(death_case.data) = c("Region","Deaths/Case Ratio","Codes")
+
+#death/pop *100
+death_pop.data = data.frame(pop.data$Region,death.data$deaths/pop.data$Population2019*100,pop.data$Codes)
+names(death_pop.data) = c("Region","Values","Codes")
+```
