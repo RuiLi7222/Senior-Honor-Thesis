@@ -1,0 +1,178 @@
+---
+title: "Meeting 4"
+author: "Rui Li"
+date: "10/30/2020"
+output: html_document
+---
+
+# Require packages
+```{r message = False}
+library(utils)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(stringr)
+library(readr)
+library(tidyverse)
+```
+
+# Import the newest COVID-19 Dataset 
+```{r}
+#these libraries need to be installed
+#library(utils)
+
+#read the Dataset sheet into “R”. The dataset will be called "data".
+data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+
+#library("dplyr") require "dplyr" package for the use of %>%
+covid.data = data %>%
+              rename(Date="dateRep") %>%
+              rename(Region="countriesAndTerritories") %>%
+              mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+              mutate(Region = str_replace_all(Region, "_", " "))
+covid.data = na.omit(covid.data)
+
+#population dataframe
+pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))
+names(pop.data)=c("Region","Population2019","Continents","Codes")
+pop.data = na.omit(pop.data)
+pop.data = unique(pop.data)
+
+#Case/death Ratio
+#cases dataframe
+case.data = data.frame(covid.data$Region,covid.data$cases,covid.data$countryterritoryCode) 
+names(case.data) = c("Region","cases","Codes") 
+case.data=aggregate(case.data$cases, by=list(Category=case.data$Region), FUN=sum)
+case.data = as.data.frame(cbind(case.data,unique(covid.data$countryterritoryCode)))
+names(case.data) = c("Region","cases","Codes")
+case.data = na.omit(case.data)
+
+#death dataframe
+death.data = data.frame(covid.data$Region,covid.data$deaths,covid.data$countryterritoryCode) 
+names(death.data) = c("Region","deaths","Codes") 
+death.data=aggregate(death.data$deaths, by=list(Category=death.data$Region), FUN=sum)
+death.data = as.data.frame(cbind(death.data,unique(covid.data$countryterritoryCode)))
+names(death.data) = c("Region","deaths","Codes")
+death.data = na.omit(death.data)
+
+#Death/Case dataframe
+death_case.data = data.frame(case.data$Region,death.data$deaths/case.data$cases,case.data$Codes)
+names(death_case.data) = c("Region","Deaths/Case Ratio","Codes")
+
+#death/pop *100
+death_pop.data = data.frame(pop.data$Region,death.data$deaths/pop.data$Population2019*100,pop.data$Codes)
+names(death_pop.data) = c("Region","Values","Codes")
+```
+
+```{r}
+#Land Area
+library(readxl)
+Land_Area <- read_excel("Land Area.xls")
+names(Land_Area) = Land_Area[3,]
+Land_Area = Land_Area[-(1:3),]
+Land_Area = Land_Area[,c(1,2,62,63)]
+
+#Complete 2018
+for (i in 1:nrow(Land_Area)) {
+  if(is.na(Land_Area$`2018`[i])){
+    Land_Area$`2018`[i] = Land_Area$`2017`[i]
+  }
+}
+Land_Area = na.omit(Land_Area)[,-3]
+names(Land_Area)[3] = "Area"
+
+combine = full_join(pop.data, Land_Area, by=c("Codes"="Country Code"))
+combine = na.omit(combine)[,-5]
+pop.square = na.omit(combine)
+pop.square$Area = as.numeric(pop.square$Area)
+
+#Population Density Ditribution
+library(plotly)
+pop.square.fig <- plot_ly(pop.square, type='choropleth', locations=pop.square$Codes, z=log(pop.square$Population2019/pop.square$Area), text=pop.square$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Population Density in 2019')
+pop.square.fig
+```
+
+```{r}
+#Creat data for time series
+covid.time = covid.data[,1:7]
+covid.time$Region = factor(covid.time$Region)
+covid.time = covid.time%>%
+  mutate(group_id = as.integer(Region))
+groups = length(unique(covid.time$Region))
+```
+
+```{r}
+#Lag cases and death
+for (k in 1:14) {
+  CASE=NULL
+  for (j in 1:groups) {
+    CASE=c(CASE,lag(covid.time$cases[covid.time$group_id==j],k))
+  }
+  covid.time = cbind(covid.time,CASE)
+}
+names(covid.time)[9:22]=paste("CASE",1:14,sep="-")
+
+for (k in 1:14) {
+  DEATH=NULL
+  for (j in 1:groups) {
+    DEATH=c(DEATH,lag(covid.time$deaths[covid.time$group_id==j],k))
+  }
+  covid.time = cbind(covid.time,DEATH)
+}
+names(covid.time)[23:36]=paste("DEATH",1:14,sep="-")
+```
+
+```{r}
+#Cases on Cases
+data1 = covid.time[,c(5,9:22)]
+full.m1 = lm(cases~., data = na.omit(data1))
+back.m1 = step(full.m1, direction = "backward", trace=FALSE ) 
+summary(back.m1)
+
+#Creat cases effect on case data
+coef = as.data.frame(back.m1$coefficients)
+p_value = as.data.frame(summary(back.m1)$coefficients[,4])
+case.time = cbind.data.frame(coef,p_value)
+names(case.time) = c("Coefficient", "P_Value")
+```
+
+```{r}
+#Deaths on Cases
+data2 = covid.time[,c(5,23:36)]
+full.m2 = lm(cases~., data = na.omit(data2))
+back.m2 = step(full.m2, direction = "backward", trace=FALSE ) 
+summary(back.m2)
+
+#Creat cases effect on case data
+coef = as.data.frame(back.m2$coefficients)
+p_value = as.data.frame(summary(back.m2)$coefficients[,4])
+death.time = cbind.data.frame(coef,p_value)
+names(death.time) = c("Coefficient", "P_Value")
+```
+
+```{r}
+#Cases and Deaths on Cases
+data3 = covid.time[,c(5,9:36)]
+full.m3 = lm(cases~., data = na.omit(data3))
+back.m3 = step(full.m3, direction = "backward", trace=FALSE ) 
+summary(back.m3)
+
+#Creat cases effect on case data
+coef = as.data.frame(back.m3$coefficients)
+p_value = as.data.frame(summary(back.m3)$coefficients[,4])
+case_death.time = cbind.data.frame(coef,p_value)
+names(case_death.time) = c("Coefficient", "P_Value")
+```
+
+```{r}
+library("xlsx")
+write.xlsx(case.time, file = "models-coefficient.xlsx",
+      sheetName = "Cases on case", append = FALSE)
+write.xlsx(death.time, file = "models-coefficient.xlsx", 
+           sheetName="Deaths on case", append=TRUE)
+write.xlsx(case_death.time, file = "models-coefficient.xlsx", 
+           sheetName="Cases&Deaths on case", append=TRUE)
+```
+
+
