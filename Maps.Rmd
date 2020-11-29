@@ -1,0 +1,48 @@
+---
+title: "Maps"
+author: "Rui Li"
+date: "11/25/2020"
+output: html_document
+---
+
+```{r message = FALSE, warning=FALSE, echo=FALSE}
+#population dataframe
+pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))
+names(pop.data)=c("Region","Population2019","Continents","Codes")
+pop.data = na.omit(pop.data)
+pop.data = unique(pop.data)
+
+#Land Area
+Land_Area <- read_excel("Land Area.xls")
+names(Land_Area) = Land_Area[3,]
+Land_Area = Land_Area[-(1:3),]
+Land_Area = Land_Area[,c(1,2,62,63)]
+
+#Complete 2018
+for (i in 1:nrow(Land_Area)) {
+  if(is.na(Land_Area$`2018`[i])){
+    Land_Area$`2018`[i] = Land_Area$`2017`[i]
+  }
+}
+Land_Area = na.omit(Land_Area)[,-3]
+names(Land_Area)[3] = "Area"
+
+combine = full_join(pop.data, Land_Area, by=c("Codes"="Country Code"))
+combine = na.omit(combine)[,-5]
+pop.square = na.omit(combine)
+pop.square$Area = as.numeric(pop.square$Area)
+```
+
+# Ploting data
+```{r message=FALSE, warning=FALSE, error=FALSE, echo=FALSE}
+#Population Ditribution
+pop.fig <- plot_ly(pop.data, type='choropleth', locations=pop.data$Codes, z=log(pop.data$Population2019, base = 1.5), text=pop.data$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Logarithm of World Population in 2019')%>%
+  colorbar(limits = c(26,52))
+pop.fig
+
+#Population Density Ditribution
+pop.square.fig <- plot_ly(pop.square, type='choropleth', locations=pop.square$Codes, z=log(pop.square$Population2019/pop.square$Area), text=pop.square$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Logarithm of World Population Density in 2019')
+pop.square.fig
+```

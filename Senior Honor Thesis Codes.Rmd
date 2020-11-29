@@ -1,0 +1,262 @@
+---
+title: "Senior Honor Thesis Project"
+author: "Rui Li"
+date: "11/28/2020"
+header-includes:
+- \usepackage{amsgen,amsmath,amstext,amsbsy,amsopn,amssymb,mathabx,amsthm,bm,bbm}
+- \usepackage[labelsep=space]{caption}
+output:
+  html_document: default
+subtitle: $\textbf{Coding & Modelings}$
+---
+
+**Require packages**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+library(utils)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(stringr)
+library(readr)
+library(tidyverse)
+library(readxl)
+library(plotly)
+library(MASS)
+library(kableExtra)
+library(broom)
+library(stargazer)
+```
+
+**Cleaning Data**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#these libraries need to be installed
+#library(utils)
+
+#read the Dataset sheet into “R”. The dataset will be called "data".
+data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
+
+#library("dplyr") require "dplyr" package for the use of %>%
+covid.data = data %>%
+  rename(Date="dateRep") %>%
+  rename(Region="countriesAndTerritories") %>%
+  mutate(Date=as.Date(Date,format="%d/%m/%y"))%>% 
+  mutate(Region = str_replace_all(Region, "_", " "))%>% 
+  group_by(Region) %>%
+  mutate(cases_Diff = lag(cases)-cases) %>%
+  mutate(deaths_Diff = lag(deaths)-deaths) %>% 
+  relocate(cases_Diff, .after = cases) %>%
+  relocate(deaths_Diff, .after = deaths) %>%
+  drop_na(countryterritoryCode)
+```
+
+**Data Summary**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#population dataframe
+pop.data = unique(data.frame(covid.data$Region,covid.data$popData2019,covid.data$continentExp,covid.data$countryterritoryCode))
+names(pop.data)=c("Region","Population2019","Continents","Codes")
+pop.data = na.omit(pop.data)
+pop.data = unique(pop.data)
+
+#cases dataframe
+case.data = data.frame(covid.data$Region,covid.data$cases,covid.data$countryterritoryCode) 
+names(case.data) = c("Region","cases","Codes") 
+case.data=aggregate(case.data$cases, by=list(Category=case.data$Region), FUN=sum)
+case.data = as.data.frame(cbind(case.data,unique(covid.data$countryterritoryCode)))
+names(case.data) = c("Region","cases","Codes")
+case.data = na.omit(case.data)
+
+#death dataframe
+death.data = data.frame(covid.data$Region,covid.data$deaths,covid.data$countryterritoryCode) 
+names(death.data) = c("Region","deaths","Codes") 
+death.data=aggregate(death.data$deaths, by=list(Category=death.data$Region), FUN=sum)
+death.data = as.data.frame(cbind(death.data,unique(covid.data$countryterritoryCode)))
+names(death.data) = c("Region","deaths","Codes")
+death.data = na.omit(death.data)
+
+#Death/Case dataframe
+death_case.data = data.frame(case.data$Region,death.data$deaths/case.data$cases,case.data$Codes)
+names(death_case.data) = c("Region","Deaths/Case Ratio","Codes")
+
+#death/pop *100
+death_pop.data = data.frame(pop.data$Region,death.data$deaths/pop.data$Population2019*100,pop.data$Codes)
+names(death_pop.data) = c("Region","Values","Codes")
+
+#Land Area
+Land_Area <- read_excel("Land Area.xls")
+names(Land_Area) = Land_Area[3,]
+Land_Area = Land_Area[-(1:3),]
+Land_Area = Land_Area[,c(1,2,62,63)]
+
+#Complete 2018
+for (i in 1:nrow(Land_Area)) {
+  if(is.na(Land_Area$`2018`[i])){
+    Land_Area$`2018`[i] = Land_Area$`2017`[i]
+  }
+}
+Land_Area = na.omit(Land_Area)[,-3]
+names(Land_Area)[3] = "Area"
+
+combine = full_join(pop.data, Land_Area, by=c("Codes"="Country Code"))
+combine = na.omit(combine)[,-5]
+pop.square = na.omit(combine)
+pop.square$Area = as.numeric(pop.square$Area)
+```
+
+**Ploting data**
+```{r message=FALSE, warning=FALSE, error=FALSE}
+#Population Ditribution
+pop.fig <- plot_ly(pop.data, type='choropleth', locations=pop.data$Codes, z=log2(pop.data$Population2019), text=pop.data$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Population in 2019')%>%
+  colorbar(title = "Population Rates",limits = c(15,31))
+pop.fig
+
+#Population Density Ditribution
+pop.square.fig <- plot_ly(pop.square, type='choropleth', locations=pop.square$Codes, z=log(pop.square$Population2019/pop.square$Area), text=pop.square$Region, colorscale="Blues",reversescale =T)%>%
+  layout(title = 'The Logarithm of World Population Density in 2019')%>%
+  colorbar(title = "Density Rates",limits = c(-2,7))
+pop.square.fig
+
+#Case Ditribution
+case.fig <- plot_ly(case.data, type='choropleth', locations=case.data$Codes, z=log2(case.data$cases), text=case.data$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Logarithm of World Covid-19 Cases Number')%>%
+  colorbar(title = "Cases Number",limits = c(4,24))
+case.fig
+
+#Death Ditribution
+death.fig <- plot_ly(death.data, type='choropleth', locations=death.data$Codes, z=log2(death.data$deaths+1), text=case.data$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Logarithm of World Covid-19 Deaths Number')%>%
+  colorbar(title = "Deaths Number")
+death.fig
+
+#Death/Case Ditribution
+death_case.fig <- plot_ly(death_case.data, type='choropleth', locations=death_case.data$Codes, z=death_case.data$`Deaths/Case Ratio`, text=death_case.data$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Ratio of World Covid-19 Deaths to Cases Number')%>%
+  colorbar(title = "Ratio Number",limits = c(0,0.1))
+death_case.fig
+
+#Death/pop*100 Ditribution
+death_pop.fig <- plot_ly(death_pop.data, type='choropleth', locations=death_pop.data$Codes, z=death_pop.data$`Values`, text=death_pop.data$Region, colorscale="Reds",reversescale =F)%>%
+  layout(title = 'The Ratio of World Covid-19 Death/Population*100')%>%
+  colorbar(title = "Ratio Number")
+death_pop.fig
+```
+
+**Modeling Preparation**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#Creat Density Variable
+pop.density = pop.square %>%
+  mutate(Density = Population2019/Area)
+pop.density = pop.density[,c(4,6)]
+#Creat data for time series
+covid.time = covid.data[,c(1,6,8:9,11:12)]%>%
+  rename(Codes="countryterritoryCode")%>%
+  inner_join(pop.density)%>%
+  mutate(Region = as.factor(Region))%>%
+  mutate(group_id = as.integer(Region))
+groups = length(unique(covid.time$Region))
+
+#Lag cases and deaths Difference
+for (k in 1:14) {
+  CASE=NULL
+  for (j in 1:groups) {
+    CASE=c(CASE,lag(covid.time$cases_Diff[covid.time$group_id==j],k))
+  }
+  covid.time = cbind(covid.time,CASE)
+}
+names(covid.time)[9:22]=paste("CASE_DIFF",1:14,sep="-")
+
+for (k in 1:14) {
+  DEATH=NULL
+  for (j in 1:groups) {
+    DEATH=c(DEATH,lag(covid.time$deaths_Diff[covid.time$group_id==j],k))
+  }
+  covid.time = cbind(covid.time,DEATH)
+}
+names(covid.time)[23:36]=paste("DEATH_DIFF",1:14,sep="-")
+```
+
+**Modeling**
+
+- Consider the 14 Lags of Cases Difference only.
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#Cases on Cases
+data1 = covid.time[,c(2,9:22)]
+fit1.m1 <- lm(cases_Diff~., data=na.omit(data1))
+fit2.m1 <- lm(cases_Diff~1, data=na.omit(data1))
+
+step.m1 = stepAIC(fit2.m1,direction="both",scope=list(upper=fit1.m1,lower=fit2.m1),trace = FALSE)
+
+summary(step.m1)
+```
+
+- Consider the 14 Lags of Cases and Deaths Difference only.
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#Cases & Deaths on Cases
+data2 = covid.time[,c(2,9:36)]
+fit1.m2 <- lm(cases_Diff~., data=na.omit(data2))
+fit2.m2 <- lm(cases_Diff~1, data=na.omit(data2))
+
+step.m2 = stepAIC(fit2.m2,direction="both",scope=list(upper=fit1.m2,lower=fit2.m2),trace = FALSE)
+
+summary(step.m2)
+
+#Compare models
+anova(step.m1,step.m2)
+```
+
+|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
+|----|----|----|----|----|----|----|
+|1|52547|39.17|||||
+|2|52534|38.78|13|388052910|40.438|<2.2e-16 ***|
+
+- Consider the 14 Lags of Cases & Deaths Difference, and population.
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#Cases, Deaths & Population on Cases
+data3 = covid.time[,c(2,6,9:36)]
+fit1.m3 <- lm(cases_Diff~., data=na.omit(data3))
+fit2.m3 <- lm(cases_Diff~1, data=na.omit(data3))
+
+step.m3 = stepAIC(fit2.m3,direction="both",scope=list(upper=fit1.m3,lower=fit2.m3),trace = FALSE)
+
+summary(step.m3)
+
+#Compare models
+anova(step.m2,step.m3)
+```
+
+|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
+|----|----|----|----|----|----|----|
+|2|52534|38.78|||||
+|3|52533|38.77|1|11207507|15.187|9.75e-05 ***|
+
+- Consider the 14 Lags of Cases & Deaths Difference, and density
+```{r message = FALSE, warning=FALSE, error=FALSE}
+#Cases, Deaths & Population on Cases
+data4 = covid.time[,c(2,7,9:36)]
+fit1.m4 <- lm(cases_Diff~., data=na.omit(data4))
+fit2.m4 <- lm(cases_Diff~1, data=na.omit(data4))
+
+step.m4 = stepAIC(fit2.m4,direction="both",scope=list(upper=fit1.m4,lower=fit2.m4),trace = FALSE)
+
+summary(step.m4)
+
+#Compare models
+anova(step.m3,step.m4)
+```
+
+|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
+|----|----|----|----|----|----|----|
+|3|52533|38.77|||||
+|4|52534|38.78|-1|-11207507|15.187|9.75e-05 ***|
+
+**Final Model**
+```{r}
+summary(step.m3)
+```
+
+**Model Presenting**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+stargazer(step.m1, step.m2, title = "Results of Model 1 & 2", align = T,type = "text" )
+stargazer(step.m3, step.m4, title = "Results of Model 3 & 4", align = T,type = "text" )
+stargazer(step.m1, step.m2, step.m3, title = "Results of Model 1 & 2 & 3", align = T,type = "text")
+```
