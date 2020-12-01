@@ -1,0 +1,94 @@
+
+<table style="text-align:center"><caption><strong>Results of Model 3 & 4</strong></caption>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="2"><em>Dependent variable:</em></td></tr>
+<tr><td></td><td colspan="2" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="2">cases_Diff</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">`CASE_DIFF-7`</td><td>0.461<sup>***</sup></td><td>0.462<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-14`</td><td>0.110<sup>***</sup></td><td>0.110<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-1`</td><td>-0.552<sup>***</sup></td><td>-0.551<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-8`</td><td>0.336<sup>***</sup></td><td>0.337<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-2`</td><td>-0.445<sup>***</sup></td><td>-0.444<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-9`</td><td>0.210<sup>***</sup></td><td>0.211<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-6`</td><td>0.054<sup>***</sup></td><td>0.055<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-3`</td><td>-0.283<sup>***</sup></td><td>-0.282<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-10`</td><td>0.107<sup>***</sup></td><td>0.107<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-12`</td><td>-0.109<sup>***</sup></td><td>-0.109<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-13`</td><td>-0.114<sup>***</sup></td><td>-0.114<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-4`</td><td>-0.146<sup>***</sup></td><td>-0.145<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.004)</td><td>(0.004)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`CASE_DIFF-5`</td><td>-0.082<sup>***</sup></td><td>-0.081<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.005)</td><td>(0.005)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-8`</td><td>2.098<sup>***</sup></td><td>2.100<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.110)</td><td>(0.110)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-7`</td><td>1.907<sup>***</sup></td><td>1.908<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.101)</td><td>(0.101)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-6`</td><td>1.312<sup>***</sup></td><td>1.313<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.090)</td><td>(0.090)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-5`</td><td>0.671<sup>***</sup></td><td>0.672<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.070)</td><td>(0.070)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-9`</td><td>1.563<sup>***</sup></td><td>1.565<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.114)</td><td>(0.114)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-10`</td><td>1.399<sup>***</sup></td><td>1.401<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.112)</td><td>(0.112)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-11`</td><td>1.386<sup>***</sup></td><td>1.389<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.107)</td><td>(0.107)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-12`</td><td>1.047<sup>***</sup></td><td>1.048<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.100)</td><td>(0.100)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-13`</td><td>0.899<sup>***</sup></td><td>0.900<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.089)</td><td>(0.089)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-14`</td><td>0.569<sup>***</sup></td><td>0.569<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.070)</td><td>(0.070)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">popData2019</td><td>0.00000<sup>***</sup></td><td></td></tr>
+<tr><td style="text-align:left"></td><td>(0.00000)</td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-2`</td><td>0.282<sup>***</sup></td><td>0.282<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.063)</td><td>(0.063)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">`DEATH_DIFF-1`</td><td>0.181<sup>***</sup></td><td>0.182<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.063)</td><td>(0.063)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Constant</td><td>9.417<sup>**</sup></td><td>13.018<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(3.892)</td><td>(3.761)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Observations</td><td>52,962</td><td>52,962</td></tr>
+<tr><td style="text-align:left">R<sup>2</sup></td><td>0.589</td><td>0.589</td></tr>
+<tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.589</td><td>0.588</td></tr>
+<tr><td style="text-align:left">Residual Std. Error</td><td>863.040 (df = 52935)</td><td>863.136 (df = 52936)</td></tr>
+<tr><td style="text-align:left">F Statistic</td><td>2,914.683<sup>***</sup> (df = 26; 52935)</td><td>3,030.079<sup>***</sup> (df = 25; 52936)</td></tr>
+<tr><td colspan="3" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="2" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
+</table>

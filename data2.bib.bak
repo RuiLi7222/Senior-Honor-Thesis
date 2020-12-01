@@ -1,0 +1,11 @@
+% Encoding: UTF-8
+
+@Article{WB2018,
+  author  = {WB},
+  journal = {The Wold Bank},
+  title   = {Land Area},
+  year    = {2018},
+  url     = {https://data.worldbank.org/indicator/AG.LND.TOTL.K2},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

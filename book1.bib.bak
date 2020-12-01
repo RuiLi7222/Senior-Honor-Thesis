@@ -1,0 +1,15 @@
+% Encoding: UTF-8
+
+@Book{Qu2020,
+  author    = {Jie-Ming Qu and Bin Cao and Rong-Chang Chen},
+  publisher = {Elsevier},
+  title     = {COVID-19: The Essentials of Prevention and Treatment},
+  year      = {2020},
+  isbn      = {978-0-12-824003-8},
+  booktitle = {COVID-19},
+  doi       = {https://doi.org/10.1016/B978-0-12-824003-8.09994-0},
+  pages     = {i - ii},
+  url       = {http://www.sciencedirect.com/science/article/pii/B9780128240038099940},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

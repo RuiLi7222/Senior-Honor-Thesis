@@ -25,13 +25,11 @@ library(MASS)
 library(kableExtra)
 library(broom)
 library(stargazer)
+library(ggfortify)
 ```
 
 **Cleaning Data**
 ```{r message = FALSE, warning=FALSE, error=FALSE}
-#these libraries need to be installed
-#library(utils)
-
 #read the Dataset sheet into “R”. The dataset will be called "data".
 data <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM")
 
@@ -204,12 +202,7 @@ summary(step.m2)
 anova(step.m1,step.m2)
 ```
 
-|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
-|----|----|----|----|----|----|----|
-|1|52547|39.17|||||
-|2|52534|38.78|13|388052910|40.438|<2.2e-16 ***|
-
-- Consider the 14 Lags of Cases & Deaths Difference, and population.
+- Consider the 14 Lags of Cases & Deaths Difference, and Population.
 ```{r message = FALSE, warning=FALSE, error=FALSE}
 #Cases, Deaths & Population on Cases
 data3 = covid.time[,c(2,6,9:36)]
@@ -224,12 +217,7 @@ summary(step.m3)
 anova(step.m2,step.m3)
 ```
 
-|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
-|----|----|----|----|----|----|----|
-|2|52534|38.78|||||
-|3|52533|38.77|1|11207507|15.187|9.75e-05 ***|
-
-- Consider the 14 Lags of Cases & Deaths Difference, and density
+- Consider the 14 Lags of Cases & Deaths Difference, and Density
 ```{r message = FALSE, warning=FALSE, error=FALSE}
 #Cases, Deaths & Population on Cases
 data4 = covid.time[,c(2,7,9:36)]
@@ -244,19 +232,31 @@ summary(step.m4)
 anova(step.m3,step.m4)
 ```
 
+**Final Model & Diagnostic Test**
+```{r message = FALSE, warning=FALSE, error=FALSE}
+summary(step.m3)
+#Diagnostic Test
+plot(step.m3,sub.caption = "")
+```
+
+**Model Presenting**
+
 |Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
+|----|----|----|----|----|----|----|
+|1|52547|39.17|||||
+|2|52534|38.78|13|388052910|40.438|<2.2e-16 ***|
+
+|Model Name|Res.DF|RSS|Df|Sum of Sq|F|Pr(>F)|
+|----|----|----|----|----|----|----|
+|2|52534|38.78|||||
+|3|52533|38.77|1|11207507|15.187|9.75e-05 ***|
+
+|Model Name|Res.DF|RSS|Df|Sum of|
 |----|----|----|----|----|----|----|
 |3|52533|38.77|||||
 |4|52534|38.78|-1|-11207507|15.187|9.75e-05 ***|
 
-**Final Model**
-```{r}
-summary(step.m3)
-```
-
-**Model Presenting**
 ```{r message = FALSE, warning=FALSE, error=FALSE}
-stargazer(step.m1, step.m2, title = "Results of Model 1 & 2", align = T,type = "text" )
-stargazer(step.m3, step.m4, title = "Results of Model 3 & 4", align = T,type = "text" )
-stargazer(step.m1, step.m2, step.m3, title = "Results of Model 1 & 2 & 3", align = T,type = "text")
+stargazer(step.m1, step.m2, step.m3, type = "text", title = "Results of Model 1 & 2 & 3", align = T)
+stargazer(step.m3, step.m4, type = "text", title = "Results of Model 3 & 4", align = T)
 ```
